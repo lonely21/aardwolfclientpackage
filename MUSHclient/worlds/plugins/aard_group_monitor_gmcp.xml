@@ -151,9 +151,9 @@ default_width = 269
 height = tonumber (GetVariable ("height")) or default_height
 width = tonumber (GetVariable ("width")) or default_width
 show_self = tonumber (GetVariable ("show_self")) or 1
-show_hp = tonumber (GetVariable ("show_hp")) or 1
-show_mn = tonumber (GetVariable ("show_mn")) or 1
-show_mv = tonumber (GetVariable ("show_mv")) or 1
+show_jq = tonumber (GetVariable ("show_jq")) or 1
+show_qx = tonumber (GetVariable ("show_qx")) or 1
+show_nl = tonumber (GetVariable ("show_nl")) or 1
 hidden = tonumber (GetVariable ("hidden")) or 0
 flat_gauges = tonumber (GetVariable("flat_gauges")) or 0
 overlay_numbers = tonumber (GetVariable("overlay_numbers")) or 0
@@ -166,7 +166,7 @@ title_gradient_col2 = 0x444444
 group_members = {}
 group_info = {}
 
-local defaultColorVals = {Health={0x00ff00,0x004400}, Mana={0xff5500,0x442200}, Moves={0x00ffff,0x004444}, Align={0x0000ff,0x00ffff}}
+local defaultColorVals = {Health={0x00ff00,0x004400}, Blood={0xff5500,0x442200}, Force={0x00ffff,0x004444}, Align={0x0000ff,0x00ffff}}
 colorVals = defaultColorVals
 assert (loadstring (GetVariable ("colorVals") or "")) ()
 
@@ -177,7 +177,7 @@ thresh2percent = tonumber (GetVariable("thresh2percent")) or 20
 thresh1color = tonumber (GetVariable("thresh1color")) or 0x00ffff
 thresh2color = tonumber (GetVariable("thresh2color")) or 0x0000ff
 
-local barIndex = {"Health", "Mana", "Moves", "Align"}
+local barIndex = {"Health", "Blood", "Force", "Align"}
 
 RESIZE_TAG_SIZE = 10
 MIN_SIZE        = 100
@@ -344,7 +344,7 @@ function DisplayGroupPage()
          end
          num_columns = math.max(math.floor(width / column_width), 1)
          members_per_col = math.ceil((#group_data["members"])/num_columns)
-         labels_width = math.max(WindowTextWidth(win, font_id, "HP"), WindowTextWidth(win, font_id, "MN"), WindowTextWidth(win, font_id, "MV"))
+         labels_width = math.max(WindowTextWidth(win, font_id, "精"), WindowTextWidth(win, font_id, "气"), WindowTextWidth(win, font_id, "内"))
          bar_width = column_width - GAP*4 - labels_width
          if overlay_numbers == 0 then
             bar_width = bar_width - WindowTextWidth(win, font_id, "88888/88888")
@@ -377,15 +377,15 @@ function DisplayGroupPage()
             WindowText(win, font_id, txt, x, y, 0, 0, 0xeeeeee, utf8)
             y = y + line_height + 1
 
-            if show_hp == 1 then -- HP BAR
+            if show_jq == 1 then -- JQ BAR
                x = baseX
-               WindowText(win, font_id, "HP", x, y, 0, 0, 0xeeeeee, utf8)
+               WindowText(win, font_id, "精", x, y, 0, 0, 0xeeeeee, utf8)
                x = x + labels_width + GAP
                local hpColor1 = colorVals["Health"][1]
                local hpColor2 = colorVals["Health"][2]
                local hpPercent = 100
-               if tonumber(v["info"]["hp"]) and tonumber(v["info"]["mhp"]) then
-                  hpPercent = 100* (tonumber(v["info"]["hp"]) / tonumber(v["info"]["mhp"]))
+               if tonumber(v["info"]["jing"]) and tonumber(v["info"]["mjing"]) then
+                  hpPercent = 100* (tonumber(v["info"]["jing"]) / tonumber(v["info"]["mjing"]))
                end
                if thresh1active == 1 then
                   if hpPercent < thresh1percent then
@@ -399,8 +399,8 @@ function DisplayGroupPage()
                      hpColor2 = thresh2color
                   end
                end
-               gauge(win, v["name"].."'s HP", tonumber(v["info"]["hp"]), tonumber(v["info"]["mhp"]), x, y, bar_width, line_height, hpColor1, 0x000000, 0, 0x000000, hpColor2, nil, flat_gauges==1)
-               txt = string.lpad(v["info"]["hp"], 5, ' ').."/"..string.rpad(v["info"]["mhp"],5,' ')
+               gauge(win, v["name"].."'s JQ", tonumber(v["info"]["jing"]), tonumber(v["info"]["mjing"]), x, y, bar_width, line_height, hpColor1, 0x000000, 0, 0x000000, hpColor2, nil, flat_gauges==1)
+               txt = string.lpad(v["info"]["jing"], 5, ' ').."/"..string.rpad(v["info"]["mjing"],5,' ')
                if overlay_numbers == 1 then
                   txtlen = WindowTextWidth(win,font_id,txt)
                   outlined_text(win, font_id, txt, baseX+labels_width+((bar_width-txtlen)/2)+(GAP), y, 0, 0, 0xeeeeee, utf8)
@@ -410,12 +410,12 @@ function DisplayGroupPage()
                y = y + line_height + 1
             end
 
-            if show_mn == 1 then-- MANA BAR
+            if show_qx == 1 then-- Blood BAR
                x = baseX
-               WindowText(win, font_id, "MN", x, y, 0, 0, 0xeeeeee, utf8)
+               WindowText(win, font_id, "气", x, y, 0, 0, 0xeeeeee, utf8)
                x = x + labels_width + GAP
-               gauge(win, v["name"].."'s MN", tonumber(v["info"]["mn"]), tonumber(v["info"]["mmn"]), x, y, bar_width, line_height, colorVals["Mana"][1], 0x000000, 0, 0x000000, colorVals["Mana"][2], nil, flat_gauges==1)
-               txt = string.lpad(v["info"]["mn"],5,' ').."/"..string.rpad(v["info"]["mmn"],5,' ')
+               gauge(win, v["name"].."'s QX", tonumber(v["info"]["qi"]), tonumber(v["info"]["mqi"]), x, y, bar_width, line_height, colorVals["Blood"][1], 0x000000, 0, 0x000000, colorVals["Blood"][2], nil, flat_gauges==1)
+               txt = string.lpad(v["info"]["qi"],5,' ').."/"..string.rpad(v["info"]["mqi"],5,' ')
                if overlay_numbers == 1 then
                   txtlen = WindowTextWidth(win,font_id,txt)
                   outlined_text(win, font_id, txt, baseX+labels_width+((bar_width-txtlen)/2)+(GAP), y, 0, 0, 0xeeeeee, utf8)
@@ -425,12 +425,12 @@ function DisplayGroupPage()
                y = y + line_height + 1
             end
 
-            if show_mv == 1 then -- MOVES BAR
+            if show_nl == 1 then -- Force BAR
                x = baseX
-               WindowText(win, font_id, "MV", x, y, 0, 0, 0xeeeeee, utf8)
+               WindowText(win, font_id, "内", x, y, 0, 0, 0xeeeeee, utf8)
                x = x + labels_width + GAP
-               gauge(win, v["name"].."'s MV", tonumber(v["info"]["mv"]), tonumber(v["info"]["mmv"]), x, y, bar_width, line_height, colorVals["Moves"][1], 0x000000, 0, 0x000000, colorVals["Moves"][2], nil, flat_gauges==1)
-               txt = string.lpad(v["info"]["mv"],5,' ').."/"..string.rpad(v["info"]["mmv"],5,' ')
+               gauge(win, v["name"].."'s NL", tonumber(v["info"]["neili"]), tonumber(v["info"]["mneili"]), x, y, bar_width, line_height, colorVals["Force"][1], 0x000000, 0, 0x000000, colorVals["Force"][2], nil, flat_gauges==1)
+               txt = string.lpad(v["info"]["neili"],5,' ').."/"..string.rpad(v["info"]["mneili"],5,' ')
                if overlay_numbers == 1 then
                   txtlen = WindowTextWidth(win,font_id,txt)
                   outlined_text(win, font_id, txt, baseX+labels_width+((bar_width-txtlen)/2)+(GAP), y, 0, 0, 0xeeeeee, utf8)
@@ -494,7 +494,7 @@ function right_click_menu ()
          end
       end
    end
-   menustring = menustring.."<|-|>Configure Colors|>Health|Main|Border|<|>Mana|Main|Border|<|>Moves|Main|Border|<|>Align|Evil|Good|<|<|>Show Info|"..((show_hp==1 and "+") or "").."Health|"..((show_mn==1 and "+") or "").."Mana|"..((show_mv==1 and "+") or "").."Moves|<|"..((flat_gauges==1 and "+") or "").."Use Flat Gauges|"..((overlay_numbers==1 and "+") or "").."Overlay Numbers|>HP Thresholds|>First|"..(((thresh1active == 1) and "+") or "").."Activate|Set Percent ("..thresh1percent.."%)|Set Color ("..RGBColourToName(thresh1color)..")|<|>Second|"..(((thresh2active == 1) and "+") or "").."Activate|Set Percent ("..thresh2percent.."%)|Set Color ("..RGBColourToName(thresh2color)..")|<|<|-|Bring To Front|Send To Back|-|Reset Defaults"
+   menustring = menustring.."<|-|>Configure Colors|>Health|Main|Border|<|>Blood|Main|Border|<|>Force|Main|Border|<|>Align|Evil|Good|<|<|>Show Info|"..((show_jq==1 and "+") or "").."Health|"..((show_qx==1 and "+") or "").."Blood|"..((show_nl==1 and "+") or "").."Force|<|"..((flat_gauges==1 and "+") or "").."Use Flat Gauges|"..((overlay_numbers==1 and "+") or "").."Overlay Numbers|>HP Thresholds|>First|"..(((thresh1active == 1) and "+") or "").."Activate|Set Percent ("..thresh1percent.."%)|Set Color ("..RGBColourToName(thresh1color)..")|<|>Second|"..(((thresh2active == 1) and "+") or "").."Activate|Set Percent ("..thresh2percent.."%)|Set Color ("..RGBColourToName(thresh2color)..")|<|<|-|Bring To Front|Send To Back|-|Reset Defaults"
    result = WindowMenu (win,
       WindowInfo (win, 14),  -- x position
       WindowInfo (win, 15),   -- y position
@@ -539,28 +539,28 @@ function right_click_menu ()
             colorVals[barIndex[math.ceil(adjustedNumResult/2)]][colourIndex] = newcolour
          end
       elseif numResult == member_count+13 then
-         -- show/hide HP info
-         show_hp = (((show_hp == 0) and 1) or 0)
-         if (show_hp == 0) then
-            ColourNote("yellow", "", "You will no longer see HP info in the group monitor.")
+         -- show/hide Health info
+         show_jq = (((show_jq == 0) and 1) or 0)
+         if (show_jq == 0) then
+            ColourNote("yellow", "", "You will no longer see JQ info in the group monitor.")
          else
-            ColourNote("yellow", "", "You will now see HP info in the group monitor.")
+            ColourNote("yellow", "", "You will now see JQ info in the group monitor.")
          end
       elseif numResult == member_count+14   then
-         -- show/hide MANA info
-         show_mn = (((show_mn == 0) and 1) or 0)
-         if (show_mn == 0) then
-            ColourNote("yellow", "", "You will no longer see MN info in the group monitor.")
+         -- show/hide Blood info
+         show_qx = (((show_qx == 0) and 1) or 0)
+         if (show_qx == 0) then
+            ColourNote("yellow", "", "You will no longer see QX info in the group monitor.")
          else
-            ColourNote("yellow", "", "You will now see MN info in the group monitor.")
+            ColourNote("yellow", "", "You will now see QX info in the group monitor.")
          end
       elseif numResult == member_count+15 then
-         -- show/hide MOVES info
-         show_mv = (((show_mv == 0) and 1) or 0)
-         if (show_mv == 0) then
-            ColourNote("yellow", "", "You will no longer see MV info in the group monitor.")
+         -- show/hide Force info
+         show_nl = (((show_nl == 0) and 1) or 0)
+         if (show_nl == 0) then
+            ColourNote("yellow", "", "You will no longer see NL info in the group monitor.")
          else
-            ColourNote("yellow", "", "You will now see MV info in the group monitor.")
+            ColourNote("yellow", "", "You will now see NL info in the group monitor.")
          end
       elseif numResult == member_count+16 then
          -- use flat/shaded gauges
@@ -696,13 +696,13 @@ function ResizeMoveCallback()
    height = height + posy - starty
    starty = posy
    local min_lines = 1
-   if show_hp == 1 then
+   if show_jq == 1 then
       min_lines = min_lines + 1
    end
-   if show_mn == 1 then
+   if show_qx == 1 then
       min_lines = min_lines + 1
    end
-   if show_mv == 1 then
+   if show_nl == 1 then
       min_lines = min_lines + 1
    end
    if (height < title_height+(min_lines*line_height)+(2*GAP)+min_lines-1) then
@@ -775,9 +775,9 @@ function OnPluginSaveState ()
    SetVariable ("font_name", font_name)
    SetVariable ("font_size", font_size)
    SetVariable ("show_self", show_self)
-   SetVariable ("show_hp", show_hp)
-   SetVariable ("show_mn", show_mn)
-   SetVariable ("show_mv", show_mv)
+   SetVariable ("show_jq", show_jq)
+   SetVariable ("show_qx", show_qx)
+   SetVariable ("show_nl", show_nl)
    SetVariable ("hidden", hidden)
    SetVariable ("colorVals", serialize.save ("colorVals"))
    SetVariable ("flat_gauges", flat_gauges)
