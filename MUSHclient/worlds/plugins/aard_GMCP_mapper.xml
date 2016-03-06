@@ -1299,7 +1299,7 @@ end
 
 function level_check(input)
    input = tonumber(input)
-   if positive_integer_check(input) == false or input > 291 then
+   if positive_integer_check(input) == false then
       return false
    else
       return true
@@ -1549,12 +1549,14 @@ function custom_exit (name, line, wildcards)
       return
    end -- if cexit_command
    
+   -- Note: Since the addition of the ignore_exits_mismatch room flag, I think this is no longer true.
+   --       Getting rid of the remap allows one to draw custom exit linkages between nomap rooms.
+   ------------------------------------
    -- the current system makes standard letter exit (n,e,s,w,d,u) cexits not usable, so remap them
    -- to their long word forms
-   if remap[cexit_command] then
-      cexit_command = remap[cexit_command]
-   end
-
+   --if remap[cexit_command] then
+   --   cexit_command = remap[cexit_command]
+   --end
    if current_room then
       cexit_start = current_room
    else
@@ -2614,13 +2616,17 @@ function backup_databases(manual)
       succ = ffi.C.CreateDirectoryA(GetInfo(66).."db_backups\\", nil)
       err_no = ffi.C.GetLastError()
    else
-      succ, err_no = utils.shellexecute("cmd", "/C mkdir db_backups", "GetInfo(66)", "open", 0)
+      succ, err_no = utils.shellexecute("cmd", "/C mkdir db_backups", GetInfo(66), "open", 0)
    end
    if succ == false and err_no ~= 183 and err_no ~= 127 then
       -- error
       ColourNote("yellow","red", "ERROR ("..err_no..") trying to CreateDirectory: "..GetInfo(66).."db_backups\\\n")
    else 
       -- successfully created the backup directory
+      
+      -- record when the backup occurs
+      dbCheckExecute(string.format("INSERT OR REPLACE INTO storage (name, data) VALUES (%s,%s);", fixsql("backup_date"), fixsql(os.date("%b %d, %Y - %X"))))
+      
       db:close() -- always close the database before copying
       
       -- make new backup
@@ -4480,5 +4486,4 @@ end
 ]]>
 </script>
 </muclient>
-
 
